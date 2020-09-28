@@ -1148,6 +1148,12 @@ def create_erasure_profile(service, profile_name,
     validator(erasure_plugin_name, six.string_types,
               list(plugin_techniques.keys()))
 
+    if erasure_profile_exists(service, profile_name):
+        log('erasure profile {} already exists, create_erasure_profile '
+            'will not be applied'.format(profile_name),
+            level=WARNING)
+        return
+
     cmd = [
         'ceph', '--id', service,
         'osd', 'erasure-code-profile', 'set', profile_name,
@@ -1208,9 +1214,6 @@ def create_erasure_profile(service, profile_name,
             cmd.append('d={}'.format(str(helper_chunks)))
         if scalar_mds:
             cmd.append('scalar-mds={}'.format(scalar_mds))
-
-    if erasure_profile_exists(service, profile_name):
-        cmd.append('--force')
 
     check_call(cmd)
 
